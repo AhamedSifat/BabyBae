@@ -69,3 +69,7 @@ export const getUserProfile = asyncHandler(async (req, res) => {
   }
   res.status(200).json(user);
 });
+
+export const logout = asyncHandler(async (req, res) => {
+  res.status(200).json({ message: 'Logged out successfully', success: true });
+});
