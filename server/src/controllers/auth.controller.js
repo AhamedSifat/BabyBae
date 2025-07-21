@@ -1,5 +1,6 @@
 import User from '../models/user.model.js';
 import asyncHandler from '../utils/asyncHandler.js';
+import { generateToken } from '../utils/generateToken.js';
 
 export const registerUser = asyncHandler(async (req, res) => {
   const { name, email, password, role } = req.body;
@@ -25,19 +26,18 @@ export const registerUser = asyncHandler(async (req, res) => {
     addresses: [],
   });
 
-  // If user creation is successful, return user data
-  if (user) {
-    res.status(201).json({
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-      avatar: user.avatar,
-      role: user.role,
-      addresses: user.addresses,
-    });
-  } else {
-    res.status(400).json({ message: 'Invalid user data' });
+  if (!user) {
+    return res.status(500).json({ message: 'User registration failed' });
   }
+
+  res.status(201).json({
+    _id: user._id,
+    name: user.name,
+    email: user.email,
+    avatar: user.avatar,
+    role: user.role,
+    addresses: user.addresses || [],
+  });
 });
 
 export const loginUser = asyncHandler(async (req, res) => {
@@ -55,6 +55,7 @@ export const loginUser = asyncHandler(async (req, res) => {
       avatar: user.avatar,
       role: user.role,
       addresses: user.addresses || [],
+      token: generateToken(user),
     });
   } else {
     res.status(401).json({ message: 'Invalid email or password' });
