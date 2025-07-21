@@ -20,7 +20,9 @@ app.get('/', (req, res) => {
 app.use('/api/auth', authRouter);
 
 app.use((err, req, res, next) => {
-  res.status(err.status || 500).json({ message: err.message });
+  res
+    .status(err.status || 500)
+    .json({ message: err.message || 'Internal Server Error' });
 });
 
 app.listen(port, () => {
