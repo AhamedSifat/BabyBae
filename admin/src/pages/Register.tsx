@@ -22,9 +22,11 @@ import {
 import { Link } from 'lucide-react';
 import { registerSchema, type RegisterFormData } from '@/lib/validation';
 import { useAuthStore } from '@/store/use-auth-store';
+import { useNavigate } from 'react-router';
 
 export default function Register() {
   const { register } = useAuthStore();
+  const navigate = useNavigate();
   const form = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
@@ -41,6 +43,7 @@ export default function Register() {
     try {
       setLoading(true);
       await register(data);
+      navigate('/login');
     } catch (error) {
       console.error(error);
     } finally {
