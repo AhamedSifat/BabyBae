@@ -43,7 +43,23 @@ export const useAuthStore = create<AuthState>()(
       token: null,
       isAuthenticated: false,
 
-      login: async (credentials) => {},
+      login: async (credentials) => {
+        try {
+          const response = await adminApi.post('/auth/login', credentials);
+          const { token, ...userData } = response.data;
+
+          set({
+            user: userData,
+            token,
+            isAuthenticated: true,
+          });
+
+          toast.success(`Welcome back, ${userData.name}`);
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        } catch (error: any) {
+          toast.error(error.response?.data?.message || 'Login failed');
+        }
+      },
 
       register: async (userData) => {
         try {
