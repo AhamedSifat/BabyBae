@@ -21,8 +21,10 @@ import {
 } from '@/components/ui/select';
 import { Link } from 'lucide-react';
 import { registerSchema, type RegisterFormData } from '@/lib/validation';
+import { useAuthStore } from '@/store/use-auth-store';
 
 export default function Register() {
+  const { register } = useAuthStore();
   const form = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
@@ -35,13 +37,15 @@ export default function Register() {
 
   const [loading, setLoading] = useState(false);
 
-  const onSubmit = (data: RegisterFormData) => {
-    setLoading(true);
-    setTimeout(() => {
-      console.log('Registration Data:', data);
+  const onSubmit = async (data: RegisterFormData) => {
+    try {
+      setLoading(true);
+      await register(data);
+    } catch (error) {
+      console.error(error);
+    } finally {
       setLoading(false);
-      // Show success animation
-    }, 1500);
+    }
   };
 
   return (
