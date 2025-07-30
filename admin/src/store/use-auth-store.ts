@@ -74,7 +74,15 @@ export const useAuthStore = create<AuthState>()(
 
       checkIsAdmin: () => {},
 
-      logout: () => {},
+      logout: () => {
+        set({
+          user: null,
+          token: null,
+          isAuthenticated: false,
+        });
+        localStorage.removeItem('auth-storage');
+        toast.success('Logged out successfully');
+      },
     }),
     {
       name: 'auth-storage',
