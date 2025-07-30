@@ -10,6 +10,7 @@ const app = express();
 const port = process.env.PORT || 8000;
 
 connectDB();
+
 var whitelist = [process.env.ADMIN_URL, process.env.CLIENT_URL];
 var corsOptions = {
   origin: function (origin, callback) {
@@ -23,7 +24,7 @@ var corsOptions = {
   methods: ['GET', 'POST', 'PATCH', 'DELETE', 'PUT', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
 };
-app.use(cors({ corsOptions }));
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
