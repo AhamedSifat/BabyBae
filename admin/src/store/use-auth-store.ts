@@ -72,7 +72,10 @@ export const useAuthStore = create<AuthState>()(
         }
       },
 
-      checkIsAdmin: () => {},
+      checkIsAdmin: () => {
+        const user = get().user;
+        return user?.role === 'admin';
+      },
 
       logout: () => {
         set({
