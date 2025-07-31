@@ -6,6 +6,7 @@ import { createBrowserRouter, RouterProvider } from 'react-router';
 import Login from './pages/Login.tsx';
 import Register from './pages/Register.tsx';
 import { Toaster } from 'sonner';
+import Dashboard from './pages/Dashboard.tsx';
 
 const router = createBrowserRouter([
   {
@@ -21,6 +22,12 @@ const router = createBrowserRouter([
   {
     path: '/',
     element: <App />,
+    children: [
+      {
+        path: '/dashboard',
+        element: <Dashboard />,
+      },
+    ],
   },
 ]);
 
