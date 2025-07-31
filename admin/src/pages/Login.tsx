@@ -14,8 +14,12 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { LogIn } from 'lucide-react';
 import { loginSchema, type LoginFormData } from '@/lib/validation';
+import { useAuthStore } from '@/store/use-auth-store';
+import { useNavigate } from 'react-router';
 
 export default function Login() {
+  const { login } = useAuthStore();
+  const navigate = useNavigate();
   const form = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -26,12 +30,16 @@ export default function Login() {
 
   const [loading, setLoading] = useState(false);
 
-  const onSubmit = (data: LoginFormData) => {
-    setLoading(true);
-    setTimeout(() => {
-      console.log('Login Data:', data);
+  const onSubmit = async (data: LoginFormData) => {
+    try {
+      setLoading(true);
+      await login(data);
+      navigate('/dashboard');
+    } catch (error) {
+      console.error(error);
+    } finally {
       setLoading(false);
-    }, 1500);
+    }
   };
 
   return (
