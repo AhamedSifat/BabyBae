@@ -56,7 +56,9 @@ export const useAuthStore = create<AuthState>()(
           toast.success(`Welcome back, ${userData.name}`);
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (error: any) {
-          toast.error(error.response?.data?.message || 'Login failed');
+          const errorMessage = error.response?.data?.message || 'Login failed';
+          toast.error(errorMessage);
+          throw error;
         }
       },
 
