@@ -3,6 +3,7 @@ import dotenv from 'dotenv';
 import { connectDB } from './config/db.js';
 import authRouter from './routes/auth.route.js';
 import cors from 'cors';
+import userRouter from './routes/user.route.js';
 
 dotenv.config();
 
@@ -33,6 +34,7 @@ app.get('/', (req, res) => {
 });
 
 app.use('/api/auth', authRouter);
+app.use('/api/users', userRouter);
 
 app.use((err, req, res, next) => {
   res
