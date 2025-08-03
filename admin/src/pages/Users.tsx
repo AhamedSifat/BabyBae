@@ -19,6 +19,7 @@ import {
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { useAxiosPrivate } from '@/hooks/use-axios-private';
+import UserMangmentSkeletons from '@/Skeletons/users-managments-skeletons';
 
 interface UserType {
   _id: string;
@@ -105,10 +106,7 @@ const UsersManagement = () => {
         {/* Users Table */}
         <div className='bg-white rounded-lg border'>
           {loading ? (
-            <div className='p-12 text-center'>
-              <RefreshCw className='w-8 h-8 animate-spin text-blue-600 mx-auto mb-4' />
-              <p className='text-gray-600'>Loading users...</p>
-            </div>
+            <UserMangmentSkeletons />
           ) : (
             <Table>
               <TableHeader>
