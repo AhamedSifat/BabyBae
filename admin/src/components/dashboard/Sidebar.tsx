@@ -32,7 +32,7 @@ const navigationItems = [
     badge: null,
   },
   { icon: UserCheck, label: 'Account', path: '/account' },
-  { icon: Users, label: 'Users', path: '/users' },
+  { icon: Users, label: 'Users', path: '/dashboard/users' },
   { icon: ShoppingCart, label: 'Orders', path: '/orders' },
   { icon: FileText, label: 'Invoices', path: '/invoices' },
   { icon: Image, label: 'Banners', path: '/banners' },

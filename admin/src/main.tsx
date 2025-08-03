@@ -7,6 +7,7 @@ import Login from './pages/Login.tsx';
 import Register from './pages/Register.tsx';
 import { Toaster } from 'sonner';
 import Dashboard from './pages/Dashboard.tsx';
+import Users from './pages/Users.tsx';
 
 const router = createBrowserRouter([
   {
@@ -26,6 +27,11 @@ const router = createBrowserRouter([
       {
         path: '/dashboard',
         element: <Dashboard />,
+      },
+
+      {
+        path: '/dashboard/users',
+        element: <Users />,
       },
     ],
   },
