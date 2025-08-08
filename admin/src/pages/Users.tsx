@@ -48,6 +48,7 @@ import {
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { userSchema, type userFormData } from '@/lib/validation';
+import { ImageUpload } from '@/components/image-upload';
 
 interface UserType {
   _id: string;
@@ -379,11 +380,10 @@ const UsersManagement = () => {
                       Avatar
                     </FormLabel>
                     <FormControl>
-                      <Input
-                        type='text'
-                        {...field}
+                      <ImageUpload
+                        value={field.value}
+                        onChange={field.onChange}
                         disabled={formLoading}
-                        className='focus:border-indigo-500 hoverEffect'
                       />
                     </FormControl>
                     <FormMessage className='text-red-500 text-xs' />
