@@ -51,6 +51,16 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { userSchema, type userFormData } from '@/lib/validation';
 import { ImageUpload } from '@/components/image-upload';
 import { toast } from 'sonner';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 interface UserType {
   _id: string;
@@ -65,7 +75,6 @@ const UsersManagement = () => {
   const [users, setUsers] = useState<UserType[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const [refreshing, setRefreshing] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -108,6 +117,27 @@ const UsersManagement = () => {
       );
     } finally {
       setFormLoading(false);
+    }
+  };
+
+  const handleDelete = (user: UserType) => {
+    setSelectedUser(user);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleDeleteUser = async () => {
+    if (!selectedUser) return;
+    setLoading(true);
+    try {
+      await axiosPrivate.delete(`/users/${selectedUser?._id}`);
+      toast.success('User deleted successfully');
+      fetchUsers();
+    } catch (error) {
+      console.error('Failed to delete users', error);
+      const axiosError = error as AxiosError<{ message: string }>;
+      toast.error(
+        axiosError?.response?.data?.message || 'Failed to delete users'
+      );
     }
   };
 
@@ -256,6 +286,7 @@ const UsersManagement = () => {
                         <Button
                           variant='ghost'
                           size='sm'
+                          onClick={() => handleDelete(user)}
                           className='h-8 w-8 p-0 text-red-600 hover:text-red-700'
                         >
                           <Trash2 className='w-4 h-4' />
@@ -412,7 +443,10 @@ const UsersManagement = () => {
                 <Button
                   type='button'
                   variant={'outline'}
-                  onClick={() => setIsAddModalOpen(false)}
+                  onClick={() => {
+                    setIsAddModalOpen(false);
+                    formAdd.reset();
+                  }}
                   disabled={formLoading}
                   className='border-gray-300 text-gray-700 hover:bg-gray-100 rounded-lg hoverEffect'
                 >
@@ -436,6 +470,29 @@ const UsersManagement = () => {
           </Form>
         </DialogContent>
       </Dialog>
+
+      {/* Delete User Modal */}
+      <AlertDialog open={isDeleteModalOpen} onOpenChange={setIsDeleteModalOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete{' '}
+              <span className='font-semibold'>{selectedUser?.name}</span>'s
+              account.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteUser}
+              className='bg-red-600 hover:bg-red-700'
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
