@@ -49,6 +49,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { userSchema, type userFormData } from '@/lib/validation';
 import { ImageUpload } from '@/components/image-upload';
+import { toast } from 'sonner';
 
 interface UserType {
   _id: string;
@@ -90,11 +91,20 @@ const UsersManagement = () => {
     },
   });
 
-  const handleAddUser = (data: userFormData) => {
-    console.log(data);
-    if (data) {
-      setIsAddModalOpen(false);
+  const handleAddUser = async (data: userFormData) => {
+    setFormLoading(true);
+    try {
+      console.log(data);
+      await axiosPrivate.post('/users', data);
+      toast.success('User Created successfully');
       formAdd.reset();
+      setIsAddModalOpen(false);
+      fetchUsers();
+    } catch (error) {
+      console.log('Failed to create user', error);
+      toast.error('Failed to create user');
+    } finally {
+      setFormLoading(false);
     }
   };
 
