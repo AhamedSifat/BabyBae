@@ -9,6 +9,7 @@ import {
   Plus,
   Loader2,
 } from 'lucide-react';
+import { AxiosError } from 'axios';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -94,15 +95,17 @@ const UsersManagement = () => {
   const handleAddUser = async (data: userFormData) => {
     setFormLoading(true);
     try {
-      console.log(data);
       await axiosPrivate.post('/users', data);
       toast.success('User Created successfully');
       formAdd.reset();
       setIsAddModalOpen(false);
       fetchUsers();
-    } catch (error) {
+    } catch (error: unknown) {
       console.log('Failed to create user', error);
-      toast.error('Failed to create user');
+      const axiosError = error as AxiosError<{ message: string }>;
+      toast.error(
+        axiosError?.response?.data?.message || 'Failed to create user'
+      );
     } finally {
       setFormLoading(false);
     }
@@ -113,8 +116,12 @@ const UsersManagement = () => {
     try {
       const response = await axiosPrivate.get('/users');
       setUsers(response?.data);
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Failed to load users', error);
+      const axiosError = error as AxiosError<{ message: string }>;
+      toast.error(
+        axiosError?.response?.data?.message || 'Failed to load users'
+      );
     } finally {
       setLoading(false);
     }
