@@ -18,4 +18,14 @@ export const registerSchema = z.object({
   role: z.string().nonempty({ message: 'Please select a role' }),
 });
 
+export const userSchema = z.object({
+  name: z.string().min(1, 'Name is required'),
+  email: z.string().email('Invalid email address'),
+  password: z.string().min(6, 'Password must be at least 6 characters'),
+  role: z.enum(['user', 'admin', 'deliveryman']),
+  avatar: z.string().optional(),
+});
+
+export type userFormData = z.infer<typeof userSchema>;
+
 export type RegisterFormData = z.infer<typeof registerSchema>;

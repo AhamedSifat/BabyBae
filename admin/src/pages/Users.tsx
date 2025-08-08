@@ -1,5 +1,14 @@
 import { useEffect, useState, useCallback } from 'react';
-import { Search, Users, RefreshCw, Eye, Edit, Trash2 } from 'lucide-react';
+import {
+  Search,
+  Users,
+  RefreshCw,
+  Eye,
+  Edit,
+  Trash2,
+  Plus,
+  Loader2,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -20,6 +29,25 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { useAxiosPrivate } from '@/hooks/use-axios-private';
 import UserMangmentSkeletons from '@/Skeletons/users-managments-skeletons';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { userSchema, type userFormData } from '@/lib/validation';
 
 interface UserType {
   _id: string;
@@ -33,7 +61,41 @@ interface UserType {
 const UsersManagement = () => {
   const [users, setUsers] = useState<UserType[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const [refreshing, setRefreshing] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<UserType | null>(null);
+  const [formLoading, setFormLoading] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [roleFilter, setRoleFilter] = useState<string>('all');
+  const [total, setTotal] = useState(0);
+  const [page, setPage] = useState(1);
+  const [perPage, setPerPage] = useState(20);
+  const [totalPages, setTotalPages] = useState(1);
+
   const axiosPrivate = useAxiosPrivate();
+
+  const formAdd = useForm<userFormData>({
+    resolver: zodResolver(userSchema),
+    defaultValues: {
+      name: '',
+      email: '',
+      password: '',
+      role: 'user',
+      avatar: '',
+    },
+  });
+
+  const handleAddUser = (data: userFormData) => {
+    console.log(data);
+    if (data) {
+      setIsAddModalOpen(false);
+      formAdd.reset();
+    }
+  };
 
   const fetchUsers = useCallback(async () => {
     setLoading(true);
@@ -81,7 +143,14 @@ const UsersManagement = () => {
               />
               Refresh
             </Button>
-            <Button size='sm'>Add User</Button>
+            <Button
+              onClick={() => setIsAddModalOpen(true)}
+              size='sm'
+              className='bg-blue-600 hover:bg-blue-700'
+            >
+              <Plus />
+              Add User
+            </Button>
           </div>
         </div>
 
@@ -192,6 +261,164 @@ const UsersManagement = () => {
           )}
         </div>
       </div>
+
+      {/* Add User Modal */}
+      <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
+        <DialogContent className='sm:max-w-[550px] max-h-[90vh] overflow-y-auto'>
+          <DialogHeader>
+            <DialogTitle>Add User</DialogTitle>
+            <DialogDescription>Create a new user account</DialogDescription>
+          </DialogHeader>
+          <Form {...formAdd}>
+            <form
+              className='mt-4 space-y-6'
+              onSubmit={formAdd.handleSubmit(handleAddUser)}
+            >
+              {/* Name Field */}
+              <FormField
+                control={formAdd.control}
+                name='name'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className='text-gray-700 font-medium'>
+                      Name
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        type='text'
+                        {...field}
+                        disabled={formLoading}
+                        className='focus:border-indigo-500 hoverEffect'
+                        placeholder='Enter name'
+                      />
+                    </FormControl>
+                    <FormMessage className='text-red-500 text-xs' />
+                  </FormItem>
+                )}
+              />
+              {/* Email Field */}
+              <FormField
+                control={formAdd.control}
+                name='email'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className='text-gray-700 font-medium'>
+                      Email
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        type='email'
+                        {...field}
+                        disabled={formLoading}
+                        className='focus:border-indigo-500 hoverEffect'
+                      />
+                    </FormControl>
+                    <FormMessage className='text-red-500 text-xs' />
+                  </FormItem>
+                )}
+              />
+              {/* Password Field */}
+              <FormField
+                control={formAdd.control}
+                name='password'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className='text-gray-700 font-medium'>
+                      Password
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        type='password'
+                        {...field}
+                        disabled={formLoading}
+                        className='border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200'
+                      />
+                    </FormControl>
+                    <FormMessage className='text-red-500 text-xs' />
+                  </FormItem>
+                )}
+              />
+              {/* Role Field */}
+              <FormField
+                control={formAdd.control}
+                name='role'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className='text-gray-700 font-medium'>
+                      Role
+                    </FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                      disabled={formLoading}
+                    >
+                      <FormControl>
+                        <SelectTrigger className='border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200'>
+                          <SelectValue placeholder='Select a role' />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value='user'>User</SelectItem>
+                        <SelectItem value='admin'>Admin</SelectItem>
+                        <SelectItem value='deliveryman'>
+                          Delivery Person
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage className='text-red-500 text-xs' />
+                  </FormItem>
+                )}
+              />
+              {/* Avatar Field */}
+              <FormField
+                control={formAdd.control}
+                name='avatar'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className='text-gray-700 font-medium'>
+                      Avatar
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        type='text'
+                        {...field}
+                        disabled={formLoading}
+                        className='focus:border-indigo-500 hoverEffect'
+                      />
+                    </FormControl>
+                    <FormMessage className='text-red-500 text-xs' />
+                  </FormItem>
+                )}
+              />
+              {/* Buttons */}
+              <DialogFooter>
+                <Button
+                  type='button'
+                  variant={'outline'}
+                  onClick={() => setIsAddModalOpen(false)}
+                  disabled={formLoading}
+                  className='border-gray-300 text-gray-700 hover:bg-gray-100 rounded-lg hoverEffect'
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type='submit'
+                  disabled={formLoading}
+                  className='bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg shadow-md transition-colors duration-200'
+                >
+                  {formLoading ? (
+                    <>
+                      <Loader2 className='animate-spin' /> Creating
+                    </>
+                  ) : (
+                    'Create User'
+                  )}
+                </Button>
+              </DialogFooter>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
