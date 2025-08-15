@@ -313,9 +313,14 @@ const UsersManagement = () => {
                           variant='ghost'
                           size='sm'
                           className='h-8 w-8 p-0'
+                          onClick={() => {
+                            setSelectedUser(user);
+                            setIsViewModalOpen(true);
+                          }}
                         >
                           <Eye className='w-4 h-4' />
                         </Button>
+
                         <Button
                           variant='ghost'
                           size='sm'
@@ -509,6 +514,75 @@ const UsersManagement = () => {
               </DialogFooter>
             </form>
           </Form>
+        </DialogContent>
+      </Dialog>
+
+      {/* View User Modal */}
+      <Dialog open={isViewModalOpen} onOpenChange={setIsViewModalOpen}>
+        <DialogContent className='sm:max-w-[450px] max-h-[90vh] overflow-y-auto'>
+          <DialogHeader>
+            <DialogTitle>User Details</DialogTitle>
+            <DialogDescription>
+              View details for{' '}
+              <span className='font-semibold'>{selectedUser?.name}</span>
+            </DialogDescription>
+          </DialogHeader>
+
+          {selectedUser && (
+            <div className='space-y-4'>
+              {/* Avatar */}
+              <div className='flex justify-center'>
+                <img
+                  src={selectedUser.avatar}
+                  alt={selectedUser.name}
+                  className='w-24 h-24 rounded-full object-cover border'
+                />
+              </div>
+
+              {/* Name */}
+              <div>
+                <p className='text-sm text-gray-500'>Name</p>
+                <p className='font-medium'>{selectedUser.name}</p>
+              </div>
+
+              {/* Email */}
+              <div>
+                <p className='text-sm text-gray-500'>Email</p>
+                <p className='font-medium'>{selectedUser.email}</p>
+              </div>
+
+              {/* Role */}
+              <div>
+                <p className='text-sm text-gray-500'>Role</p>
+                <Badge
+                  variant={
+                    selectedUser.role === 'admin' ? 'destructive' : 'secondary'
+                  }
+                  className={
+                    selectedUser.role === 'admin'
+                      ? 'bg-red-100 text-red-700 hover:bg-red-100'
+                      : 'bg-green-100 text-green-700 hover:bg-green-100'
+                  }
+                >
+                  {selectedUser.role}
+                </Badge>
+              </div>
+
+              {/* Created At */}
+              <div>
+                <p className='text-sm text-gray-500'>Created At</p>
+                <p className='font-medium'>
+                  {new Date(selectedUser.createdAt).toLocaleDateString()}
+                </p>
+              </div>
+            </div>
+          )}
+
+          <DialogFooter>
+            <Button variant='outline' onClick={() => setIsViewModalOpen(false)}>
+              Close
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
 
