@@ -41,3 +41,21 @@ export const deleteUser = asyncHandler(async (req, res) => {
 
   res.status(200).json({ message: 'User removed successfully' });
 });
+
+export const updateUser = asyncHandler(async (req, res) => {
+  const { name, email, role, addresses } = req.body;
+  const user = await User.findById(req.params.id);
+
+  if (!user) {
+    res.status(404).json('User not found');
+  }
+
+  user.name = name;
+  user.email = email;
+  user.role = role;
+  user.addresses = addresses || user.addresses;
+
+  const updateUser = await user.save();
+  const { password, ...userData } = updateUser.toObject();
+  res.status(201).json(userData);
+});
