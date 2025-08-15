@@ -161,6 +161,46 @@ const UsersManagement = () => {
     fetchUsers();
   }, [fetchUsers]);
 
+  const formEdit = useForm<userFormData>({
+    resolver: zodResolver(userSchema),
+    defaultValues: {
+      name: '',
+      email: '',
+      role: 'user',
+      avatar: '',
+    },
+  });
+
+  const handleEdit = (user: UserType) => {
+    setSelectedUser(user);
+    formEdit.reset({
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      avatar: user.avatar,
+    });
+    setIsEditModalOpen(true);
+  };
+
+  const updateUser = async (data: userFormData) => {
+    if (!selectedUser) return;
+    setFormLoading(true);
+    try {
+      await axiosPrivate.put(`/users/${selectedUser._id}`, data);
+      toast.success('User updated successfully');
+      setIsEditModalOpen(false);
+      fetchUsers();
+    } catch (error) {
+      console.error('Failed to update user', error);
+      const axiosError = error as AxiosError<{ message: string }>;
+      toast.error(
+        axiosError?.response?.data?.message || 'Failed to update user'
+      );
+    } finally {
+      setFormLoading(false);
+    }
+  };
+
   return (
     <div className='min-h-screen bg-gray-50/50 p-6'>
       <div className='max-w-7xl mx-auto space-y-6'>
@@ -280,6 +320,7 @@ const UsersManagement = () => {
                           variant='ghost'
                           size='sm'
                           className='h-8 w-8 p-0'
+                          onClick={() => handleEdit(user)}
                         >
                           <Edit className='w-4 h-4' />
                         </Button>
@@ -463,6 +504,125 @@ const UsersManagement = () => {
                     </>
                   ) : (
                     'Create User'
+                  )}
+                </Button>
+              </DialogFooter>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit User Modal */}
+      <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
+        <DialogContent className='sm:max-w-[550px] max-h-[90vh] overflow-y-auto'>
+          <DialogHeader>
+            <DialogTitle>Edit User</DialogTitle>
+            <DialogDescription>Update user account details</DialogDescription>
+          </DialogHeader>
+          <Form {...formEdit}>
+            <form
+              className='mt-4 space-y-6'
+              onSubmit={formEdit.handleSubmit(updateUser)}
+            >
+              {/* Name Field */}
+              <FormField
+                control={formEdit.control}
+                name='name'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Name</FormLabel>
+                    <FormControl>
+                      <Input {...field} disabled={formLoading} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Email Field */}
+              <FormField
+                control={formEdit.control}
+                name='email'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email</FormLabel>
+                    <FormControl>
+                      <Input type='email' {...field} disabled={formLoading} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Role Field */}
+              <FormField
+                control={formEdit.control}
+                name='role'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Role</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                      disabled={formLoading}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder='Select a role' />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value='user'>User</SelectItem>
+                        <SelectItem value='admin'>Admin</SelectItem>
+                        <SelectItem value='deliveryman'>
+                          Delivery Person
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Avatar Field */}
+              <FormField
+                control={formEdit.control}
+                name='avatar'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Avatar</FormLabel>
+                    <FormControl>
+                      <ImageUpload
+                        value={field.value}
+                        onChange={field.onChange}
+                        disabled={formLoading}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Buttons */}
+              <DialogFooter>
+                <Button
+                  type='button'
+                  variant='outline'
+                  onClick={() => {
+                    setIsEditModalOpen(false);
+                    formEdit.reset();
+                  }}
+                  disabled={formLoading}
+                >
+                  Cancel
+                </Button>
+                <Button type='submit' disabled={formLoading}>
+                  {formLoading ? (
+                    <>
+                      <Loader2 className='animate-spin' /> Updating
+                    </>
+                  ) : (
+                    'Update User'
                   )}
                 </Button>
               </DialogFooter>
